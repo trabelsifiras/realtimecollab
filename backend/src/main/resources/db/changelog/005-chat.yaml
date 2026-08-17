@@ -1,0 +1,190 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-01-create-channels
+      author: collab
+      changes:
+        - createTable:
+            tableName: channels
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workspace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: uuid
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 005-02-create-channel-members
+      author: collab
+      changes:
+        - createTable:
+            tableName: channel_members
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: channel_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 005-03-create-messages
+      author: collab
+      changes:
+        - createTable:
+            tableName: messages
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: channel_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sender_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reply_to_message_id
+                  type: uuid
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+  - changeSet:
+      id: 005-04-fks-chat
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: channels
+            baseColumnNames: workspace_id
+            referencedTableName: workspaces
+            referencedColumnNames: id
+            constraintName: fk_channels_workspace
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: channels
+            baseColumnNames: created_by
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_channels_creator
+        - addForeignKeyConstraint:
+            baseTableName: channel_members
+            baseColumnNames: channel_id
+            referencedTableName: channels
+            referencedColumnNames: id
+            constraintName: fk_channel_members_channel
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: channel_members
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_channel_members_user
+        - addForeignKeyConstraint:
+            baseTableName: messages
+            baseColumnNames: channel_id
+            referencedTableName: channels
+            referencedColumnNames: id
+            constraintName: fk_messages_channel
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: messages
+            baseColumnNames: sender_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_messages_sender
+        - addForeignKeyConstraint:
+            baseTableName: messages
+            baseColumnNames: reply_to_message_id
+            referencedTableName: messages
+            referencedColumnNames: id
+            constraintName: fk_messages_reply
+
+  - changeSet:
+      id: 005-05-indexes-chat
+      author: collab
+      changes:
+        - createIndex:
+            tableName: messages
+            indexName: idx_messages_channel
+            columns:
+              - column:
+                  name: channel_id
+        - createIndex:
+            tableName: messages
+            indexName: idx_messages_created
+            columns:
+              - column:
+                  name: created_at
+        - addUniqueConstraint:
+            tableName: channel_members
+            columnNames: channel_id, user_id
+            constraintName: uq_channel_members

@@ -1,0 +1,236 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-01-create-time-entries
+      author: collab
+      changes:
+        - createTable:
+            tableName: time_entries
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workspace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+              - column:
+                  name: task_id
+                  type: uuid
+              - column:
+                  name: entry_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration_minutes
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(32)
+                  defaultValue: DRAFT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: submitted_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: reviewed_by
+                  type: uuid
+              - column:
+                  name: reviewed_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: rejection_reason
+                  type: text
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 009-02-create-leave-requests
+      author: collab
+      changes:
+        - createTable:
+            tableName: leave_requests
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workspace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reason
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(32)
+                  defaultValue: PENDING
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reviewed_by
+                  type: uuid
+              - column:
+                  name: reviewed_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: review_note
+                  type: text
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 009-03-hr-foreign-keys
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: time_entries
+            baseColumnNames: workspace_id
+            referencedTableName: workspaces
+            referencedColumnNames: id
+            constraintName: fk_time_entries_workspace
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: time_entries
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_time_entries_user
+        - addForeignKeyConstraint:
+            baseTableName: time_entries
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id
+            constraintName: fk_time_entries_project
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: time_entries
+            baseColumnNames: task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_time_entries_task
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: time_entries
+            baseColumnNames: reviewed_by
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_time_entries_reviewer
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: leave_requests
+            baseColumnNames: workspace_id
+            referencedTableName: workspaces
+            referencedColumnNames: id
+            constraintName: fk_leave_requests_workspace
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: leave_requests
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_leave_requests_user
+        - addForeignKeyConstraint:
+            baseTableName: leave_requests
+            baseColumnNames: reviewed_by
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_leave_requests_reviewer
+            onDelete: SET NULL
+
+  - changeSet:
+      id: 009-04-hr-indexes
+      author: collab
+      changes:
+        - createIndex:
+            tableName: time_entries
+            indexName: idx_time_entries_workspace_date
+            columns:
+              - column:
+                  name: workspace_id
+              - column:
+                  name: entry_date
+        - createIndex:
+            tableName: time_entries
+            indexName: idx_time_entries_user
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            tableName: time_entries
+            indexName: idx_time_entries_status
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            tableName: leave_requests
+            indexName: idx_leave_requests_workspace_status
+            columns:
+              - column:
+                  name: workspace_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: leave_requests
+            indexName: idx_leave_requests_user
+            columns:
+              - column:
+                  name: user_id

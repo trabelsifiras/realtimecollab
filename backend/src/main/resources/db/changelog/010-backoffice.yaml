@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-01-add-user-role-and-active
+      author: collab
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: role
+                  type: varchar(32)
+                  defaultValue: USER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

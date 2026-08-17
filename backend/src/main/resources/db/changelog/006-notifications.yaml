@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-01-create-notifications
+      author: collab
+      changes:
+        - createTable:
+            tableName: notifications
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: recipient_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+              - column:
+                  name: message
+                  type: text
+              - column:
+                  name: resource_type
+                  type: varchar(64)
+              - column:
+                  name: resource_id
+                  type: varchar(64)
+              - column:
+                  name: read
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 006-02-fks-notifications
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: notifications
+            baseColumnNames: recipient_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_notifications_recipient
+
+  - changeSet:
+      id: 006-03-indexes-notifications
+      author: collab
+      changes:
+        - createIndex:
+            tableName: notifications
+            indexName: idx_notifications_recipient
+            columns:
+              - column:
+                  name: recipient_id
+        - createIndex:
+            tableName: notifications
+            indexName: idx_notifications_read
+            columns:
+              - column:
+                  name: read

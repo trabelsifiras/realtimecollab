@@ -1,0 +1,417 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-01-create-task-sequences
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_sequences
+            columns:
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: last_number
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 007-02-add-task-jira-columns
+      author: collab
+      changes:
+        - addColumn:
+            tableName: tasks
+            columns:
+              - column:
+                  name: key
+                  type: varchar(32)
+              - column:
+                  name: type
+                  type: varchar(32)
+                  defaultValue: TASK
+                  constraints:
+                    nullable: false
+              - column:
+                  name: parent_id
+                  type: uuid
+              - column:
+                  name: epic_id
+                  type: uuid
+              - column:
+                  name: story_points
+                  type: int
+              - column:
+                  name: start_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: original_estimate_minutes
+                  type: int
+              - column:
+                  name: remaining_estimate_minutes
+                  type: int
+              - column:
+                  name: logged_minutes
+                  type: int
+
+  - changeSet:
+      id: 007-03-backfill-task-keys
+      author: collab
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: >
+              UPDATE tasks t
+              SET key = sub.key
+              FROM (
+                  SELECT tt.id,
+                         COALESCE(p.key, 'PROJ') || '-' || ROW_NUMBER() OVER (
+                             PARTITION BY tt.project_id ORDER BY tt.created_at, tt.id
+                         )::text AS key
+                  FROM tasks tt
+                  JOIN projects p ON p.id = tt.project_id
+              ) sub
+              WHERE t.id = sub.id AND t.key IS NULL;
+        - sql:
+            sql: >
+              INSERT INTO task_sequences (project_id, last_number)
+              SELECT t.project_id, MAX(CAST(SUBSTRING(t.key FROM '([0-9]+)$') AS bigint))
+              FROM tasks t
+              WHERE t.key IS NOT NULL
+              GROUP BY t.project_id
+              ON CONFLICT (project_id) DO NOTHING;
+
+  - changeSet:
+      id: 007-04-constrain-task-key
+      author: collab
+      changes:
+        - addNotNullConstraint:
+            tableName: tasks
+            columnName: key
+            columnDataType: varchar(32)
+
+  - changeSet:
+      id: 007-05-create-task-labels
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_labels
+            columns:
+              - column:
+                  name: task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 007-06-create-task-watchers
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_watchers
+            columns:
+              - column:
+                  name: task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 007-07-create-task-activities
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_activities
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: actor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: field
+                  type: varchar(64)
+              - column:
+                  name: old_value
+                  type: text
+              - column:
+                  name: new_value
+                  type: text
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 007-08-create-task-attachments
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_attachments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: uploader_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content_type
+                  type: varchar(128)
+              - column:
+                  name: size_bytes
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: storage_path
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 007-09-create-task-links
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_links
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: source_task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: target_task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: link_type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 007-10-fks-task-jira
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: task_sequences
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id
+            constraintName: fk_task_sequences_project
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: parent_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_tasks_parent
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: epic_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_tasks_epic
+        - addForeignKeyConstraint:
+            baseTableName: task_labels
+            baseColumnNames: task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_labels_task
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: task_watchers
+            baseColumnNames: task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_watchers_task
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: task_watchers
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_task_watchers_user
+        - addForeignKeyConstraint:
+            baseTableName: task_activities
+            baseColumnNames: task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_activities_task
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: task_activities
+            baseColumnNames: actor_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_task_activities_actor
+        - addForeignKeyConstraint:
+            baseTableName: task_attachments
+            baseColumnNames: task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_attachments_task
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: task_attachments
+            baseColumnNames: uploader_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_task_attachments_uploader
+        - addForeignKeyConstraint:
+            baseTableName: task_links
+            baseColumnNames: source_task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_links_source
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: task_links
+            baseColumnNames: target_task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_links_target
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 007-11-indexes-task-jira
+      author: collab
+      changes:
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_type
+            columns:
+              - column:
+                  name: type
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_parent
+            columns:
+              - column:
+                  name: parent_id
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_epic
+            columns:
+              - column:
+                  name: epic_id
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_due_date
+            columns:
+              - column:
+                  name: due_date
+        - createIndex:
+            tableName: task_labels
+            indexName: idx_task_labels_task
+            columns:
+              - column:
+                  name: task_id
+        - createIndex:
+            tableName: task_watchers
+            indexName: idx_task_watchers_task
+            columns:
+              - column:
+                  name: task_id
+        - createIndex:
+            tableName: task_activities
+            indexName: idx_task_activities_task
+            columns:
+              - column:
+                  name: task_id
+        - createIndex:
+            tableName: task_attachments
+            indexName: idx_task_attachments_task
+            columns:
+              - column:
+                  name: task_id
+        - createIndex:
+            tableName: task_links
+            indexName: idx_task_links_source
+            columns:
+              - column:
+                  name: source_task_id
+        - createIndex:
+            tableName: task_links
+            indexName: idx_task_links_target
+            columns:
+              - column:
+                  name: target_task_id

@@ -1,0 +1,17 @@
+package com.collab.task.domain;
+
+public enum TaskActivityType {
+    CREATED,
+    STATUS_CHANGED,
+    PRIORITY_CHANGED,
+    ASSIGNEE_CHANGED,
+    FIELD_UPDATED,
+    LABEL_ADDED,
+    LABEL_REMOVED,
+    WATCHER_ADDED,
+    WATCHER_REMOVED,
+    ATTACHMENT_ADDED,
+    ATTACHMENT_REMOVED,
+    LINK_ADDED,
+    LINK_REMOVED
+}

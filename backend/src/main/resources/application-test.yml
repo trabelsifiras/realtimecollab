@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/collab_test}
+    username: ${DB_USERNAME:collab}
+    password: ${DB_PASSWORD:collab}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    com.collab: INFO

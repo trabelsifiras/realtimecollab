@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: collab-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-collab}
+      POSTGRES_USER: ${DB_USERNAME:-collab}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-collab}
+    ports:
+      - "5432:5432"
+    volumes:
+      - collab-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-collab} -d ${DB_NAME:-collab}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: collab-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-collab}
+      DB_USERNAME: ${DB_USERNAME:-collab}
+      DB_PASSWORD: ${DB_PASSWORD:-collab}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-please-use-a-long-random-secret-at-least-256-bits}
+      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION:-900000}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
+      FILE_STORAGE_PATH: /data/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - collab-uploads:/data/uploads
+
+volumes:
+  collab-postgres-data:
+  collab-uploads:

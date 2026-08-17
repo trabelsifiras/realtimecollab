@@ -1,0 +1,125 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-01-create-workspaces
+      author: collab
+      changes:
+        - createTable:
+            tableName: workspaces
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: slug
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: owner_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: avatar_url
+                  type: varchar(512)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-02-create-workspace-members
+      author: collab
+      changes:
+        - createTable:
+            tableName: workspace_members
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workspace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-03-fks-workspaces
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: workspaces
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_workspaces_owner
+        - addForeignKeyConstraint:
+            baseTableName: workspace_members
+            baseColumnNames: workspace_id
+            referencedTableName: workspaces
+            referencedColumnNames: id
+            constraintName: fk_workspace_members_workspace
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: workspace_members
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_workspace_members_user
+
+  - changeSet:
+      id: 002-04-indexes-workspace-members
+      author: collab
+      changes:
+        - createIndex:
+            tableName: workspace_members
+            indexName: idx_workspace_members_workspace
+            columns:
+              - column:
+                  name: workspace_id
+        - createIndex:
+            tableName: workspace_members
+            indexName: idx_workspace_members_user
+            columns:
+              - column:
+                  name: user_id
+        - addUniqueConstraint:
+            tableName: workspace_members
+            columnNames: workspace_id, user_id
+            constraintName: uq_workspace_members

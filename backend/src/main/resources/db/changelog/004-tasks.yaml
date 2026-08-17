@@ -1,0 +1,171 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-01-create-tasks
+      author: collab
+      changes:
+        - createTable:
+            tableName: tasks
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: priority
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assignee_id
+                  type: uuid
+              - column:
+                  name: creator_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: due_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: position
+                  type: int
+              - column:
+                  name: version
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+  - changeSet:
+      id: 004-02-create-task-comments
+      author: collab
+      changes:
+        - createTable:
+            tableName: task_comments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+  - changeSet:
+      id: 004-03-fks-tasks
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id
+            constraintName: fk_tasks_project
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: assignee_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_tasks_assignee
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: creator_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_tasks_creator
+        - addForeignKeyConstraint:
+            baseTableName: task_comments
+            baseColumnNames: task_id
+            referencedTableName: tasks
+            referencedColumnNames: id
+            constraintName: fk_task_comments_task
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: task_comments
+            baseColumnNames: author_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_task_comments_author
+
+  - changeSet:
+      id: 004-04-indexes-tasks
+      author: collab
+      changes:
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_project
+            columns:
+              - column:
+                  name: project_id
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_assignee
+            columns:
+              - column:
+                  name: assignee_id
+        - createIndex:
+            tableName: tasks
+            indexName: idx_tasks_status
+            columns:
+              - column:
+                  name: status

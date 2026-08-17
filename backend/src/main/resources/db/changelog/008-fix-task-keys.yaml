@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-01-create-task-key-sequence
+      author: collab
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: CREATE SEQUENCE task_key_seq;
+
+  - changeSet:
+      id: 008-02-deduplicate-task-keys
+      author: collab
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: >
+              UPDATE tasks t
+              SET key = sub.new_key
+              FROM (
+                  SELECT tt.id,
+                         COALESCE(NULLIF(upper(trim(p.key)), ''), 'PROJ') || '-' ||
+                         (ROW_NUMBER() OVER (ORDER BY tt.created_at, tt.id))::text AS new_key
+                  FROM tasks tt
+                  JOIN projects p ON p.id = tt.project_id
+              ) sub
+              WHERE t.id = sub.id;
+
+  - changeSet:
+      id: 008-03-seed-sequence-and-constrain-key
+      author: collab
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: >
+              SELECT setval('task_key_seq',
+                COALESCE((SELECT MAX(CAST(SUBSTRING(key FROM '([0-9]+)$') AS bigint)) FROM tasks), 0) + 1,
+                false);
+        - addUniqueConstraint:
+            tableName: tasks
+            columnNames: key
+            constraintName: uq_tasks_key
+        - dropTable:
+            tableName: task_sequences

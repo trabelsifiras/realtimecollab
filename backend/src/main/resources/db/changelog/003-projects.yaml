@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-01-create-projects
+      author: collab
+      changes:
+        - createTable:
+            tableName: projects
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: workspace_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: key
+                  type: varchar(16)
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 003-02-fks-projects
+      author: collab
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: projects
+            baseColumnNames: workspace_id
+            referencedTableName: workspaces
+            referencedColumnNames: id
+            constraintName: fk_projects_workspace
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: projects
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_projects_owner
+
+  - changeSet:
+      id: 003-03-indexes-projects
+      author: collab
+      changes:
+        - createIndex:
+            tableName: projects
+            indexName: idx_projects_workspace
+            columns:
+              - column:
+                  name: workspace_id
