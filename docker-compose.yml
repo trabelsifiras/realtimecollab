@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-collab}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-collab}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - collab-postgres-data:/var/lib/postgresql/data
     healthcheck:

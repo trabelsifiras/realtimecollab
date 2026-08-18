@@ -1,6 +1,6 @@
 # Realtime (WebSocket / STOMP)
 
-This document explains the realtime subsystem: the STOMP-over-WebSocket protocol
+This document explains the real time subsystem: the STOMP-over-WebSocket protocol
 flow, the security model, the event pipeline, and the frontend client lifecycle
 (including reconnect/backoff).
 
