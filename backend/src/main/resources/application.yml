@@ -31,7 +31,7 @@ app:
     refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
     issuer: collab-platform
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
   file:
     storage-path: ${FILE_STORAGE_PATH:./uploads}
 
