@@ -1,0 +1,48 @@
+    <div class="page-container">
+      <button mat-button class="back" routerLink="/workspaces/{{ workspaceId }}">
+        <mat-icon>arrow_back</mat-icon> Workspace
+      </button>
+
+      <div class="header">
+        <h1>Channels</h1>
+        <button mat-raised-button color="primary" (click)="showForm = !showForm">
+          <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> New channel
+        </button>
+      </div>
+
+      <div *ngIf="showForm" class="form-card">
+        <form [formGroup]="form" (ngSubmit)="create()">
+          <div class="row">
+            <mat-form-field class="grow" appearance="outline">
+              <mat-label>Channel name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. backend" />
+            </mat-form-field>
+            <mat-form-field class="type" appearance="outline">
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type">
+                <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Create channel</button>
+        </form>
+      </div>
+
+      <div class="channel-list">
+        <button *ngFor="let c of channels" class="channel-item" (click)="open(c.id)">
+          <span class="channel-icon" [class.private]="c.type === 'PRIVATE'">
+            <mat-icon>{{ c.type === 'PRIVATE' ? 'lock' : 'tag' }}</mat-icon>
+          </span>
+          <div class="channel-body">
+            <div class="channel-name"># {{ c.name }}</div>
+            <div class="channel-type">{{ c.type }}</div>
+          </div>
+          <mat-icon class="arrow">chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div *ngIf="channels.length === 0 && !showForm" class="empty-card">
+        <mat-icon>forum</mat-icon>
+        <p>No channels yet. Create one to start the conversation.</p>
+      </div>
+    </div>

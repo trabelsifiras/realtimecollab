@@ -12,60 +12,8 @@ import { UserService } from '../../core/services/user.service';
   selector: 'app-profile',
   standalone: true,
   imports: [ReactiveFormsModule, NgIf, MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule],
-  template: `
-    <div class="page-container">
-      <h1>Profile</h1>
-
-      <mat-card class="card">
-        <mat-card-title>Personal information</mat-card-title>
-        <mat-card-content>
-          <div class="text-muted">{{ email() }}</div>
-          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-            <mat-form-field class="full-width" appearance="outline">
-              <mat-label>Username</mat-label>
-              <input matInput formControlName="username" />
-            </mat-form-field>
-            <mat-form-field class="full-width" appearance="outline">
-              <mat-label>First name</mat-label>
-              <input matInput formControlName="firstName" />
-            </mat-form-field>
-            <mat-form-field class="full-width" appearance="outline">
-              <mat-label>Last name</mat-label>
-              <input matInput formControlName="lastName" />
-            </mat-form-field>
-            <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">Save</button>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="card">
-        <mat-card-title>Change password</mat-card-title>
-        <mat-card-content>
-          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-            <mat-form-field class="full-width" appearance="outline">
-              <mat-label>Current password</mat-label>
-              <input matInput type="password" formControlName="currentPassword" />
-            </mat-form-field>
-            <mat-form-field class="full-width" appearance="outline">
-              <mat-label>New password</mat-label>
-              <input matInput type="password" formControlName="newPassword" />
-            </mat-form-field>
-            <div *ngIf="passwordMessage" class="error-text">{{ passwordMessage }}</div>
-            <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid">Update password</button>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  `,
-  styles: [
-    `
-      .card {
-        margin-bottom: 24px;
-        padding: 8px;
-        max-width: 560px;
-      }
-    `
-  ]
+  templateUrl: './profile.component.html',
+  styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
   private readonly fb = inject(FormBuilder);

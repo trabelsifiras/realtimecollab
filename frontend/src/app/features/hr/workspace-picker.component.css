@@ -1,0 +1,4 @@
+      .picker { width: 220px; }
+      @media (max-width: 560px) {
+        .picker { width: 100%; }
+      }

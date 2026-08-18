@@ -1,0 +1,76 @@
+    <div class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">C</div>
+        <div class="brand-name">Collab</div>
+        <span class="brand-version">v1</span>
+      </div>
+
+      <div class="section-label">Workspaces</div>
+      <div class="workspaces">
+        <button
+          *ngFor="let ws of workspaces"
+          class="workspace-item"
+          [class.active]="isActiveWorkspace(ws.id)"
+          (click)="openWorkspace(ws.id)"
+          [title]="ws.name"
+        >
+          <span class="workspace-badge" [style.background]="avatarColor(ws.name)">{{ initials(ws.name) }}</span>
+          <span class="workspace-name">{{ ws.name }}</span>
+        </button>
+        <button class="workspace-item muted" routerLink="/workspaces" title="Add workspace">
+          <span class="workspace-badge add">+</span>
+          <span class="workspace-name">Browse workspaces</span>
+        </button>
+      </div>
+
+      <div class="section-label">Workspace</div>
+      <nav>
+        <a
+          *ngFor="let item of navItems"
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      </nav>
+
+      <div class="section-label">HR &amp; Time</div>
+      <nav>
+        <a
+          *ngFor="let item of hrNavItems"
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      </nav>
+
+      <ng-container *ngIf="isRootAdmin()">
+        <div class="section-label">Administration</div>
+        <nav>
+          <a class="nav-item" routerLink="/backoffice" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Backoffice</span>
+          </a>
+        </nav>
+      </ng-container>
+
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <span class="avatar" [style.background]="avatarColor(displayName())">{{ initials(displayName()) }}</span>
+          <div class="user-meta">
+            <div class="user-name">{{ displayName() }}</div>
+            <div class="user-status"><span class="status-dot online"></span> Online</div>
+          </div>
+          <button class="logout-btn" mat-icon-button (click)="logout()" title="Log out">
+            <mat-icon>logout</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>

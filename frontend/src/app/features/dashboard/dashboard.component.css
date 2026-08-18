@@ -1,0 +1,115 @@
+      .welcome {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .welcome h1 {
+        margin: 0 0 6px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 8px;
+      }
+
+      .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        box-shadow: var(--shadow-xs);
+      }
+
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
+
+      .stat-icon.purple { background: var(--primary); }
+      .stat-icon.green { background: var(--accent); }
+      .stat-icon.blue { background: var(--blue); }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+
+      .stat-label {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+
+      .workspace-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 18px;
+      }
+
+      .workspace-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        color: #fff;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        text-transform: uppercase;
+      }
+
+      .ws-body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .ws-name {
+        font-weight: 700;
+      }
+
+      .ws-desc {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .ws-arrow {
+        color: var(--text-faint);
+      }
+
+      .empty-card {
+        text-align: center;
+        background: var(--surface);
+        border: 1px dashed var(--border-strong);
+        border-radius: var(--radius-lg);
+        padding: 56px;
+        color: var(--text-muted);
+      }
+
+      .empty-card mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: var(--text-faint);
+      }

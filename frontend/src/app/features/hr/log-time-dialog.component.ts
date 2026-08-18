@@ -43,78 +43,8 @@ export interface LogTimeDialogResult {
     MatSelectModule,
     MatProgressSpinnerModule
   ],
-  template: `
-    <h2 mat-dialog-title>{{ title() }}</h2>
-
-    <mat-dialog-content>
-      <div *ngIf="readonly" class="status-banner">
-        <span class="status-pill" [style.background]="statusColor() + '22'" [style.color]="statusColor()">{{ statusLabel() }}</span>
-        <span *ngIf="data.entry?.rejectionReason" class="reject-reason">{{ data.entry?.rejectionReason }}</span>
-      </div>
-
-      <div class="form">
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Date</mat-label>
-          <input matInput type="date" [(ngModel)]="form.date" name="date" [readonly]="readonly" aria-label="Date" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Project</mat-label>
-          <mat-select [(ngModel)]="form.projectId" name="projectId" (ngModelChange)="onProjectChange()" [disabled]="readonly" aria-label="Project">
-            <mat-option *ngFor="let p of data.projects" [value]="p.id">{{ p.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full" *ngIf="form.projectId">
-          <mat-label>Task (optional)</mat-label>
-          <mat-select [(ngModel)]="form.taskId" name="taskId" [disabled]="readonly" aria-label="Task">
-            <mat-option [value]="">None</mat-option>
-            <mat-option *ngFor="let t of tasks" [value]="t.id">{{ t.key }} · {{ t.title }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <div class="duration" role="group" aria-label="Duration">
-          <mat-form-field appearance="outline">
-            <mat-label>Hours</mat-label>
-            <input matInput type="number" min="0" max="24" [(ngModel)]="form.hours" name="hours" [readonly]="readonly" aria-label="Hours" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Minutes</mat-label>
-            <input matInput type="number" min="0" max="59" [(ngModel)]="form.minutes" name="minutes" [readonly]="readonly" aria-label="Minutes" />
-          </mat-form-field>
-        </div>
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Description (optional)</mat-label>
-          <textarea matInput [(ngModel)]="form.description" name="description" rows="2" [readonly]="readonly" aria-label="Description"></textarea>
-        </mat-form-field>
-      </div>
-
-      <div *ngIf="error" class="error-text" role="alert">{{ error }}</div>
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button *ngIf="canDelete" mat-button color="warn" (click)="remove()" [disabled]="saving">Delete</button>
-      <span class="spacer"></span>
-      <button mat-button mat-dialog-close>Close</button>
-      <button *ngIf="!readonly" mat-raised-button color="primary" (click)="save()" [disabled]="saving">
-        <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
-        <span>{{ saving ? 'Saving…' : (isEdit ? 'Save' : 'Add') }}</span>
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [
-    `
-      .form { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
-      .duration { display: flex; gap: 12px; }
-      .duration mat-form-field { flex: 1; }
-      .spacer { flex: 1 1 auto; }
-      .status-banner { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-      .status-pill { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
-      .reject-reason { font-size: 0.82rem; color: var(--danger); }
-      .error-text { color: var(--danger); font-size: 0.85rem; margin: 8px 0; }
-    `
-  ]
+  templateUrl: './log-time-dialog.component.html',
+  styleUrl: './log-time-dialog.component.css'
 })
 export class LogTimeDialogComponent {
   readonly data = inject<LogTimeDialogData>(MAT_DIALOG_DATA);

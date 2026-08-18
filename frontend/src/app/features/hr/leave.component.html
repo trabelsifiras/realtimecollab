@@ -1,0 +1,77 @@
+    <div class="page-container leave">
+      <header class="header">
+        <div>
+          <h1>My Leave</h1>
+          <p class="subtitle">Request time off and track the status of your requests.</p>
+        </div>
+        <div class="header-actions">
+          <app-workspace-picker [workspaceId]="workspaceId" (workspaceChange)="onWorkspaceChange($event)"></app-workspace-picker>
+          <button mat-raised-button color="primary" (click)="toggleForm()" [disabled]="!workspaceId">
+            <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> Request time off
+          </button>
+        </div>
+      </header>
+
+      <ng-container *ngIf="workspaceId">
+        <form *ngIf="showForm" class="form-card" (ngSubmit)="create()" aria-labelledby="leave-form-title">
+          <h2 id="leave-form-title">New leave request</h2>
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Type</mat-label>
+              <mat-select [(ngModel)]="form.type" name="type" aria-label="Leave type">
+                <mat-option *ngFor="let t of LEAVE_TYPES" [value]="t">
+                  <mat-icon class="type-option-icon" [style.color]="LEAVE_TYPE_COLORS[t]">{{ LEAVE_TYPE_ICONS[t] }}</mat-icon>{{ LEAVE_TYPE_LABELS[t] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Start date</mat-label>
+              <input matInput type="date" [(ngModel)]="form.startDate" name="startDate" aria-label="Start date" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>End date</mat-label>
+              <input matInput type="date" [(ngModel)]="form.endDate" name="endDate" aria-label="End date" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Reason (optional)</mat-label>
+              <textarea matInput [(ngModel)]="form.reason" name="reason" rows="2" aria-label="Reason"></textarea>
+            </mat-form-field>
+          </div>
+          <div *ngIf="formError" class="error-text" role="alert">{{ formError }}</div>
+          <div class="form-actions">
+            <button mat-button type="button" (click)="toggleForm()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="saving">Submit request</button>
+          </div>
+        </form>
+
+        <section aria-labelledby="requests-title">
+          <h2 id="requests-title" class="section-title">Requests <span class="count">{{ requests.length }}</span></h2>
+          <ul class="request-list">
+            <li *ngFor="let r of requests" class="request-card">
+              <span class="type-icon" [style.background]="LEAVE_TYPE_COLORS[r.type] + '22'" [style.color]="LEAVE_TYPE_COLORS[r.type]">
+                <mat-icon>{{ LEAVE_TYPE_ICONS[r.type] }}</mat-icon>
+              </span>
+              <div class="request-main">
+                <div class="request-title">
+                  <strong>{{ LEAVE_TYPE_LABELS[r.type] }}</strong>
+                  <span class="status-pill" [style.background]="LEAVE_STATUS_COLORS[r.status] + '22'" [style.color]="LEAVE_STATUS_COLORS[r.status]">
+                    {{ LEAVE_STATUS_LABELS[r.status] }}
+                  </span>
+                </div>
+                <div class="request-dates">
+                  <mat-icon>event</mat-icon>
+                  {{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}
+                  <span class="days">({{ inclusiveDays(r.startDate, r.endDate) }} days)</span>
+                </div>
+                <div class="request-reason" *ngIf="r.reason">{{ r.reason }}</div>
+                <div class="request-note" *ngIf="r.reviewNote"><mat-icon>rate_review</mat-icon> {{ r.reviewNote }}</div>
+              </div>
+              <button mat-button class="cancel-btn" *ngIf="r.status === 'PENDING' || r.status === 'APPROVED'" (click)="cancel(r)">
+                Cancel request
+              </button>
+            </li>
+            <li *ngIf="requests.length === 0" class="no-requests">No leave requests yet. Request your first time off above.</li>
+          </ul>
+        </section>
+      </ng-container>
+    </div>

@@ -1,0 +1,56 @@
+    <div class="page-container">
+      <button mat-button class="back" routerLink="/workspaces/{{ workspaceId }}">
+        <mat-icon>arrow_back</mat-icon> Workspace
+      </button>
+
+      <div class="header">
+        <h1>Projects</h1>
+        <button mat-raised-button color="primary" (click)="showForm = !showForm">
+          <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> New project
+        </button>
+      </div>
+
+      <div *ngIf="showForm" class="form-card">
+        <form [formGroup]="form" (ngSubmit)="create()">
+          <div class="row">
+            <mat-form-field class="grow" appearance="outline">
+              <mat-label>Project name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Website redesign" />
+            </mat-form-field>
+            <mat-form-field class="key" appearance="outline">
+              <mat-label>Key</mat-label>
+              <input matInput formControlName="key" placeholder="WEB" />
+            </mat-form-field>
+          </div>
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Create project</button>
+        </form>
+      </div>
+
+      <div class="card-grid">
+        <div *ngFor="let p of projects" class="project-card clickable-card" (click)="open(p.id)">
+          <div class="p-top">
+            <span class="p-badge" [style.background]="avatarColor(p.name)">{{ initials(p.name) }}</span>
+            <span class="status-pill" [style.background]="statusColor(p.status) + '22'" [style.color]="statusColor(p.status)">
+              {{ p.status }}
+            </span>
+          </div>
+          <div class="p-name">{{ p.name }}</div>
+          <div class="p-key" *ngIf="p.key">{{ p.key }}</div>
+          <div class="p-desc">{{ p.description ?? 'No description' }}</div>
+          <button mat-button class="open-board" (click)="$event.stopPropagation(); open(p.id)">
+            Open board <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="projects.length === 0 && !showForm" class="empty-card">
+        <mat-icon>dashboard</mat-icon>
+        <p>No projects yet. Create one to start planning.</p>
+      </div>
+    </div>

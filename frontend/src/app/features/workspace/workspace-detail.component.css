@@ -1,0 +1,147 @@
+      .back {
+        color: var(--text-muted);
+      }
+      .info-card {
+        display: flex;
+        gap: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin: 8px 0 24px;
+        box-shadow: var(--shadow-xs);
+      }
+      .ws-badge {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        text-transform: uppercase;
+      }
+      .ws-info {
+        flex: 1;
+      }
+      .ws-info h1 {
+        margin: 0;
+      }
+      .slug {
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin-top: 2px;
+      }
+      .desc {
+        color: var(--text-muted);
+        margin: 10px 0 16px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .section-header h2 {
+        margin: 0 0 12px;
+      }
+      .count {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1px 10px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+      .add-member {
+        margin-bottom: 20px;
+        max-width: 480px;
+        position: relative;
+      }
+      .search-field {
+        width: 100%;
+      }
+      .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        z-index: 5;
+        overflow: hidden;
+      }
+      .search-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+      .search-item:hover {
+        background: var(--surface-2);
+      }
+      .search-meta {
+        flex: 1;
+      }
+      .search-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .search-email {
+        font-size: 0.78rem;
+        color: var(--text-faint);
+      }
+      .add-icon {
+        color: var(--primary);
+      }
+      .member-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .member-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 10px 16px;
+      }
+      .member-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .member-name {
+        font-weight: 600;
+      }
+      .member-email {
+        font-size: 0.78rem;
+        color: var(--text-faint);
+      }
+      .role-pill {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+      .role-select {
+        width: 130px;
+      }
+      .remove {
+        color: var(--text-faint);
+      }
+      .remove:hover {
+        color: var(--danger);
+      }

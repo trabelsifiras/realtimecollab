@@ -1,0 +1,6 @@
+    <mat-form-field appearance="outline" class="picker">
+      <mat-label>Workspace</mat-label>
+      <mat-select [ngModel]="workspaceId" (ngModelChange)="select($event)" aria-label="Select workspace">
+        <mat-option *ngFor="let ws of workspaces" [value]="ws.id">{{ ws.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>

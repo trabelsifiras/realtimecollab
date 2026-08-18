@@ -1,0 +1,46 @@
+    <div class="page-container">
+      <div class="header">
+        <h1>Workspaces</h1>
+        <button mat-raised-button color="primary" (click)="showForm = !showForm">
+          <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon> New workspace
+        </button>
+      </div>
+
+      <div *ngIf="showForm" class="form-card">
+        <form [formGroup]="form" (ngSubmit)="create()">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Workspace name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. Acme Corp" />
+          </mat-form-field>
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="2" placeholder="What's this workspace for?"></textarea>
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Create workspace</button>
+        </form>
+      </div>
+
+      <div class="card-grid">
+        <div *ngFor="let ws of workspaces" class="workspace-card clickable-card" (click)="open(ws.id)">
+          <div class="ws-top">
+            <span class="workspace-badge" [style.background]="avatarColor(ws.name)">{{ initials(ws.name) }}</span>
+            <span class="ws-slug">{{ ws.slug }}</span>
+          </div>
+          <div class="ws-name">{{ ws.name }}</div>
+          <div class="ws-desc">{{ ws.description ?? 'No description yet.' }}</div>
+          <div class="ws-actions">
+            <button mat-button class="action" (click)="$event.stopPropagation(); openProjects(ws.id)">
+              <mat-icon>view_kanban</mat-icon> Projects
+            </button>
+            <button mat-button class="action" (click)="$event.stopPropagation(); openChannels(ws.id)">
+              <mat-icon>tag</mat-icon> Channels
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="workspaces.length === 0 && !showForm" class="empty-card">
+        <mat-icon>workspaces</mat-icon>
+        <p>No workspaces yet. Create one to start collaborating.</p>
+      </div>
+    </div>

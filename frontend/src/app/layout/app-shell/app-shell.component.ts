@@ -13,50 +13,8 @@ import { REALTIME_EVENT_TYPES } from '../../core/models/realtime.model';
   selector: 'app-app-shell',
   standalone: true,
   imports: [RouterOutlet, MatSidenavModule, SidebarComponent, TopbarComponent],
-  template: `
-    <mat-sidenav-container class="shell">
-      <mat-sidenav
-        #sidenav
-        class="sidenav"
-        [mode]="isMobile() ? 'over' : 'side'"
-        [opened]="!isMobile()"
-        [fixedInViewport]="true"
-      >
-        <app-sidebar />
-      </mat-sidenav>
-      <mat-sidenav-content>
-        <app-topbar (menuToggle)="sidenav.toggle()" />
-        <main class="content">
-          <router-outlet />
-        </main>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
-  `,
-  styles: [
-    `
-      .shell {
-        height: 100vh;
-        background: var(--bg);
-      }
-
-      .sidenav {
-        width: 280px;
-        border-right: none;
-        background: var(--sidebar-bg);
-      }
-
-      .content {
-        min-height: calc(100vh - 60px);
-        background: var(--bg);
-      }
-
-      @media (max-width: 900px) {
-        .sidenav {
-          width: 280px;
-        }
-      }
-    `
-  ]
+  templateUrl: './app-shell.component.html',
+  styleUrl: './app-shell.component.css'
 })
 export class AppShellComponent implements OnInit, OnDestroy {
   private readonly realtime = inject(RealtimeService);

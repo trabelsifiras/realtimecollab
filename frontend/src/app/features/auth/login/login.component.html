@@ -1,0 +1,42 @@
+    <div class="auth">
+      <aside class="brand-panel">
+        <div class="brand-logo">C</div>
+        <h1>Where teams do their best work, together.</h1>
+        <p>Real-time collaboration that feels like Slack, plans like Jira, and connects like Teams.</p>
+        <ul class="feature-list">
+          <li><mat-icon>bolt</mat-icon> Instant real-time updates</li>
+          <li><mat-icon>view_kanban</mat-icon> Drag-and-drop task boards</li>
+          <li><mat-icon>forum</mat-icon> Channels, chat & mentions</li>
+        </ul>
+      </aside>
+
+      <main class="form-panel">
+        <div class="form-box">
+          <h2>Sign in</h2>
+          <p class="subtitle">Welcome back, let's get things done.</p>
+
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Email or username</mat-label>
+              <mat-icon matPrefix>alternate_email</mat-icon>
+              <input matInput formControlName="identifier" autocomplete="username" />
+            </mat-form-field>
+
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Password</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
+              <input matInput type="password" formControlName="password" autocomplete="current-password" />
+            </mat-form-field>
+
+            <div *ngIf="error" class="error-text">{{ error }}</div>
+
+            <button mat-raised-button color="primary" type="submit" class="full-width submit" [disabled]="form.invalid || loading">
+              <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+              <span *ngIf="!loading">Sign in</span>
+            </button>
+          </form>
+
+          <p class="switch">No account yet? <a routerLink="/register">Create one</a></p>
+        </div>
+      </main>
+    </div>

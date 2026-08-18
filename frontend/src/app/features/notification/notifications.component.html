@@ -1,0 +1,25 @@
+    <div class="page-container narrow">
+      <div class="header">
+        <h1>Notifications</h1>
+        <button mat-button color="primary" (click)="markAllRead()">Mark all as read</button>
+      </div>
+
+      <div class="list">
+        <div *ngFor="let n of notifications" class="notification" [class.unread]="!n.read" (click)="open(n)">
+          <span class="icon" [style.background]="iconColor(n.type) + '22'" [style.color]="iconColor(n.type)">
+            <mat-icon>{{ iconFor(n.type) }}</mat-icon>
+          </span>
+          <div class="body">
+            <div class="title">{{ n.title ?? n.type }}</div>
+            <div class="message">{{ n.message }}</div>
+            <div class="time">{{ n.createdAt | date: 'medium' }}</div>
+          </div>
+          <span *ngIf="!n.read" class="unread-dot"></span>
+        </div>
+      </div>
+
+      <div *ngIf="notifications.length === 0" class="empty-state">
+        <mat-icon>notifications_off</mat-icon>
+        <p>You're all caught up.</p>
+      </div>
+    </div>

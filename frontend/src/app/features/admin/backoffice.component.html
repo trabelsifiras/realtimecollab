@@ -1,0 +1,84 @@
+    <div class="page-container backoffice">
+      <header class="header">
+        <div>
+          <h1>Backoffice</h1>
+          <p class="subtitle">User management and role assignment.</p>
+        </div>
+        <span *ngIf="isRootAdmin" class="admin-badge"><mat-icon>verified_user</mat-icon> Root admin</span>
+      </header>
+
+      <div *ngIf="!isRootAdmin" class="forbidden" role="alert">
+        <mat-icon>lock</mat-icon>
+        <p>Only the root administrator can access the backoffice.</p>
+      </div>
+
+      <mat-tab-group *ngIf="isRootAdmin" animationDuration="0ms">
+        <mat-tab label="Users">
+          <div class="tab-body">
+            <mat-form-field appearance="outline" class="search">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput [(ngModel)]="search" (ngModelChange)="loadUsers()" placeholder="Search users…" aria-label="Search users" />
+            </mat-form-field>
+
+            <ul class="user-list">
+              <li *ngFor="let u of users" class="user-row">
+                <span class="avatar" [style.background]="avatarColor(u.username)">{{ initials(u.username) }}</span>
+                <div class="user-main">
+                  <div class="user-name">
+                    {{ displayName(u) }}
+                    <span *ngIf="isSelf(u)" class="you-badge">You</span>
+                    <span *ngIf="u.role === 'ROOT_ADMIN'" class="role-pill admin">{{ u.role }}</span>
+                  </div>
+                  <div class="user-email">{{ u.email }} · joined {{ u.createdAt | date: 'mediumDate' }}</div>
+                </div>
+                <span *ngIf="u.active === false" class="status-pill suspended">Suspended</span>
+                <span *ngIf="u.active !== false" class="status-pill active">Active</span>
+
+                <div class="user-actions" *ngIf="!isSelf(u)">
+                  <button *ngIf="u.role !== 'ROOT_ADMIN'" mat-button color="primary" (click)="promote(u)">Make admin</button>
+                  <button *ngIf="u.role === 'ROOT_ADMIN'" mat-button (click)="demote(u)">Revoke admin</button>
+                  <button *ngIf="u.active !== false" mat-button color="warn" (click)="deactivate(u)">Suspend</button>
+                  <button *ngIf="u.active === false" mat-button color="primary" (click)="reactivate(u)">Reactivate</button>
+                </div>
+              </li>
+              <li *ngIf="users.length === 0" class="empty">No users found.</li>
+            </ul>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Workspaces">
+          <div class="tab-body">
+            <ul class="ws-list">
+              <li *ngFor="let ws of workspaces" class="ws-item">
+                <button class="ws-toggle" (click)="toggleWorkspace(ws)" [attr.aria-expanded]="expandedWorkspaceId === ws.id">
+                  <span class="ws-badge" [style.background]="avatarColor(ws.name)">{{ initials(ws.name) }}</span>
+                  <span class="ws-name">{{ ws.name }}</span>
+                  <span class="ws-slug">{{ ws.slug }}</span>
+                  <mat-icon>{{ expandedWorkspaceId === ws.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+
+                <div *ngIf="expandedWorkspaceId === ws.id" class="members">
+                  <div *ngFor="let m of members" class="member-row">
+                    <span class="avatar" [style.background]="avatarColor(m.user?.username ?? m.userId)">{{ initials(m.user?.username ?? m.userId) }}</span>
+                    <div class="member-main">
+                      <div class="member-name">{{ m.user?.username ?? 'Unknown' }}</div>
+                      <div class="member-email">{{ m.user?.email ?? '' }}</div>
+                    </div>
+                    <mat-form-field appearance="outline" class="role-select">
+                      <mat-select [value]="m.role" (selectionChange)="assignRole(ws, m, $event.value)" [attr.aria-label]="'Role for ' + (m.user?.username ?? 'member')">
+                        <mat-option *ngFor="let r of WORKSPACE_ROLES" [value]="r">{{ r }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button (click)="removeMember(ws, m)" [attr.aria-label]="'Remove ' + (m.user?.username ?? 'member') + ' from workspace'">
+                      <mat-icon>person_remove</mat-icon>
+                    </button>
+                  </div>
+                  <div *ngIf="members.length === 0" class="empty">No members.</div>
+                </div>
+              </li>
+              <li *ngIf="workspaces.length === 0" class="empty">No workspaces yet.</li>
+            </ul>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>

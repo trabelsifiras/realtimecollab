@@ -1,0 +1,73 @@
+      .narrow {
+        max-width: 720px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .header h1 {
+        margin: 0;
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .notification {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        cursor: pointer;
+        transition: box-shadow 0.15s ease;
+      }
+      .notification:hover {
+        box-shadow: var(--shadow-sm);
+      }
+      .notification.unread {
+        border-left: 4px solid var(--primary);
+      }
+      .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .body {
+        flex: 1;
+        min-width: 0;
+      }
+      .title {
+        font-weight: 600;
+      }
+      .message {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        margin-top: 2px;
+      }
+      .time {
+        font-size: 0.75rem;
+        color: var(--text-faint);
+        margin-top: 6px;
+      }
+      .unread-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--primary);
+        margin-top: 6px;
+        flex-shrink: 0;
+      }
+      .empty-state mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: var(--text-faint);
+      }

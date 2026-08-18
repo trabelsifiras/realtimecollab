@@ -1,0 +1,123 @@
+    <div class="board-page">
+      <header class="board-header">
+        <div class="board-title">
+          <button mat-icon-button routerLink="/workspaces/{{ project?.workspaceId }}/projects" class="back-btn" aria-label="Back to projects">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div>
+            <div class="crumb">Projects / {{ project?.name ?? '…' }}</div>
+            <h1>{{ project?.name ?? 'Board' }}</h1>
+          </div>
+        </div>
+
+        <form class="new-task" (ngSubmit)="createTask()">
+          <mat-form-field appearance="outline" class="new-title">
+            <mat-icon matPrefix>add</mat-icon>
+            <input matInput [(ngModel)]="newTaskTitle" name="newTaskTitle" placeholder="Create new task…" aria-label="New task title" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="new-select">
+            <mat-select [(ngModel)]="newTaskType" name="newTaskType" aria-label="New task type">
+              <mat-option *ngFor="let t of TASK_TYPES" [value]="t">{{ TYPE_LABELS[t] }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="new-select">
+            <mat-select [(ngModel)]="newTaskPriority" name="newTaskPriority" aria-label="New task priority">
+              <mat-option *ngFor="let p of TASK_PRIORITIES" [value]="p">{{ PRIORITY_LABELS[p] }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!newTaskTitle.trim()">Add</button>
+        </form>
+      </header>
+
+      <div class="filters" role="search">
+        <mat-form-field appearance="outline" class="search">
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [(ngModel)]="search" (ngModelChange)="onSearchChange($event)" name="search" placeholder="Search tasks…" aria-label="Search tasks" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="filter">
+          <mat-label>Assignee</mat-label>
+          <mat-select [(ngModel)]="filterAssignee" (ngModelChange)="load()" name="filterAssignee" aria-label="Filter by assignee">
+            <mat-option [value]="null">All</mat-option>
+            <mat-option *ngFor="let m of members" [value]="m.userId">{{ memberName(m) }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="filter">
+          <mat-label>Type</mat-label>
+          <mat-select [(ngModel)]="filterType" (ngModelChange)="load()" name="filterType" aria-label="Filter by type">
+            <mat-option [value]="null">All</mat-option>
+            <mat-option *ngFor="let t of TASK_TYPES" [value]="t">{{ TYPE_LABELS[t] }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="filter">
+          <mat-label>Priority</mat-label>
+          <mat-select [(ngModel)]="filterPriority" (ngModelChange)="load()" name="filterPriority" aria-label="Filter by priority">
+            <mat-option [value]="null">All</mat-option>
+            <mat-option *ngFor="let p of TASK_PRIORITIES" [value]="p">{{ PRIORITY_LABELS[p] }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-button *ngIf="hasFilters" (click)="clearFilters()" class="clear">Clear</button>
+      </div>
+
+      <div class="board" cdkDropListGroup [class.loading]="loading">
+        <section *ngFor="let column of columns" class="column" [attr.aria-label]="column.title + ' column'">
+          <div class="column-header">
+            <span class="status-dot" [style.background]="column.color"></span>
+            <span class="column-title">{{ column.title }}</span>
+            <span class="count" [attr.aria-label]="column.tasks.length + ' tasks'">{{ column.tasks.length }}</span>
+          </div>
+          <div class="cards" cdkDropList [cdkDropListData]="column.tasks" (cdkDropListDropped)="drop($event, column.status)">
+            <div
+              *ngFor="let task of column.tasks"
+              class="task-card"
+              cdkDrag
+              [cdkDragData]="task"
+            >
+              <div class="task-top">
+                <span class="key">
+                  <mat-icon class="type-icon" [style.color]="TYPE_COLORS[task.type]" [attr.aria-label]="TYPE_LABELS[task.type]">{{ TYPE_ICONS[task.type] }}</mat-icon>
+                  {{ task.key }}
+                </span>
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="more" [attr.aria-label]="'Task actions for ' + task.title" (click)="$event.stopPropagation()">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </div>
+              <button class="task-title" (click)="openTask(task.id)">{{ task.title }}</button>
+
+              <div *ngIf="task.labels?.length" class="labels">
+                <span *ngFor="let label of task.labels" class="label">{{ label }}</span>
+              </div>
+
+              <div class="task-footer">
+                <div class="meta">
+                  <span *ngIf="task.storyPoints != null" class="sp" [matTooltip]="task.storyPoints + ' story points'">{{ task.storyPoints }}</span>
+                  <span *ngIf="task.priority" class="priority" [style.background]="PRIORITY_COLORS[task.priority] + '22'" [style.color]="PRIORITY_COLORS[task.priority]">
+                    {{ PRIORITY_LABELS[task.priority] }}
+                  </span>
+                  <span *ngIf="task.dueDate" class="due" [class.overdue]="isOverdue(task)" [matTooltip]="'Due ' + (task.dueDate | date: 'mediumDate')">
+                    <mat-icon>schedule</mat-icon>{{ task.dueDate | date: 'MMM d' }}
+                  </span>
+                </div>
+                <div class="people">
+                  <span *ngIf="task.assigneeId" class="assignee" [style.background]="memberColor(task.assigneeId)" [matTooltip]="memberNameById(task.assigneeId)">
+                    {{ memberInitials(task.assigneeId) }}
+                  </span>
+                  <span *ngIf="task.watchers?.length" class="watchers" [matTooltip]="task.watchers.length + ' watchers'">
+                    <mat-icon>visibility</mat-icon>{{ task.watchers.length }}
+                  </span>
+                </div>
+              </div>
+
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item *ngFor="let s of TASK_STATUSES" (click)="move(task, s)">
+                  <mat-icon [style.color]="STATUS_COLORS[s]">check_circle</mat-icon> Move to {{ STATUS_LABELS[s] }}
+                </button>
+                <button mat-menu-item class="danger" (click)="deleteTask(task)">
+                  <mat-icon>delete</mat-icon> Delete task
+                </button>
+              </mat-menu>
+            </div>
+            <div *ngIf="column.tasks.length === 0" class="drop-hint">Drop tasks here</div>
+          </div>
+        </section>
+      </div>
+    </div>

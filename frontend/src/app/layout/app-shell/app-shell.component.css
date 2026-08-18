@@ -1,0 +1,21 @@
+      .shell {
+        height: 100vh;
+        background: var(--bg);
+      }
+
+      .sidenav {
+        width: 280px;
+        border-right: none;
+        background: var(--sidebar-bg);
+      }
+
+      .content {
+        min-height: calc(100vh - 60px);
+        background: var(--bg);
+      }
+
+      @media (max-width: 900px) {
+        .sidenav {
+          width: 280px;
+        }
+      }

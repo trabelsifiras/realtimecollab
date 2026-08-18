@@ -1,0 +1,52 @@
+    <header class="topbar">
+      <div class="left">
+        <button mat-icon-button class="menu-btn" (click)="menuToggle.emit()" aria-label="Toggle menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <div class="search">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input type="text" placeholder="Search Collab…" />
+          <span class="search-kbd">⌘K</span>
+        </div>
+      </div>
+
+      <div class="right">
+        <span class="connection-chip" [class]="connectionClass()" [title]="'Connection: ' + realtime.state()">
+          <span class="dot"></span>{{ connectionLabel() }}
+        </span>
+
+        <button
+          mat-icon-button
+          class="icon-btn"
+          [matBadge]="notification.unreadCount()"
+          [matBadgeHidden]="notification.unreadCount() === 0"
+          matBadgeColor="warn"
+          (click)="openNotifications()"
+          aria-label="Notifications"
+        >
+          <mat-icon>notifications_none</mat-icon>
+        </button>
+
+        <button class="profile-btn" [matMenuTriggerFor]="userMenu">
+          <span class="avatar" [style.background]="avatarColor(displayName())">{{ initials(displayName()) }}</span>
+          <span class="profile-name">{{ displayName() }}</span>
+          <mat-icon class="chevron">expand_more</mat-icon>
+        </button>
+
+        <mat-menu #userMenu="matMenu" class="user-menu">
+          <div class="menu-header">
+            <span class="avatar" [style.background]="avatarColor(displayName())">{{ initials(displayName()) }}</span>
+            <div>
+              <div class="menu-name">{{ displayName() }}</div>
+              <div class="menu-email">{{ email() }}</div>
+            </div>
+          </div>
+          <button mat-menu-item (click)="openProfile()">
+            <mat-icon>person</mat-icon><span>Profile</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>exit_to_app</mat-icon><span>Log out</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>

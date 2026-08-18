@@ -1,0 +1,118 @@
+    <div class="page-container hr">
+      <header class="header">
+        <div>
+          <h1>HR Dashboard</h1>
+          <p class="subtitle">Employee hours and leave overview.</p>
+        </div>
+        <app-workspace-picker [workspaceId]="workspaceId" (workspaceChange)="onWorkspaceChange($event)"></app-workspace-picker>
+      </header>
+
+      <div *ngIf="forbidden" class="forbidden" role="alert">
+        <mat-icon>lock</mat-icon>
+        <p>You need the HR, Admin or Owner role to view this page.</p>
+      </div>
+
+      <mat-tab-group *ngIf="workspaceId && !forbidden" class="tabs" animationDuration="0ms">
+        <mat-tab label="Overview">
+          <div class="tab-body">
+            <div class="range-bar">
+              <mat-form-field appearance="outline" class="range-field">
+                <mat-label>From</mat-label>
+                <input matInput type="date" [(ngModel)]="fromInput" name="from" (change)="loadOverview()" aria-label="Overview start date" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="range-field">
+                <mat-label>To</mat-label>
+                <input matInput type="date" [(ngModel)]="toInput" name="to" (change)="loadOverview()" aria-label="Overview end date" />
+              </mat-form-field>
+            </div>
+
+            <div *ngIf="overview" class="emp-grid">
+              <article *ngFor="let e of overview.employees" class="emp-card">
+                <div class="emp-head">
+                  <span class="avatar" [style.background]="avatarColor(e.username ?? e.userId)">{{ empInitials(e) }}</span>
+                  <div class="emp-meta">
+                    <div class="emp-name">{{ empName(e) }}</div>
+                    <span class="role-pill" [style.background]="roleColor(e.role) + '22'" [style.color]="roleColor(e.role)">{{ e.role }}</span>
+                  </div>
+                </div>
+
+                <div class="emp-hero">
+                  <div class="hero-value">{{ minutesToLabel(e.totalMinutes) }}</div>
+                  <div class="hero-label">Total hours</div>
+                </div>
+
+                <div class="stat-row">
+                  <div class="stat"><span class="s-value">{{ minutesToLabel(e.submittedMinutes) }}</span><span class="s-label">Submitted</span></div>
+                  <div class="stat"><span class="s-value">{{ minutesToLabel(e.approvedMinutes) }}</span><span class="s-label">Approved</span></div>
+                  <div class="stat"><span class="s-value">{{ e.pendingTimeEntries }}</span><span class="s-label">Pending entries</span></div>
+                </div>
+
+                <div class="leave-chips">
+                  <span *ngIf="e.vacationDays" class="leave-chip" [style.background]="LEAVE_TYPE_COLORS['VACATION'] + '22'" [style.color]="LEAVE_TYPE_COLORS['VACATION']">Vacation {{ e.vacationDays }}d</span>
+                  <span *ngIf="e.sickDays" class="leave-chip" [style.background]="LEAVE_TYPE_COLORS['SICK'] + '22'" [style.color]="LEAVE_TYPE_COLORS['SICK']">Sick {{ e.sickDays }}d</span>
+                  <span *ngIf="e.pendingLeaveRequests" class="leave-chip" [style.background]="LEAVE_STATUS_COLORS['PENDING'] + '22'" [style.color]="LEAVE_STATUS_COLORS['PENDING']">{{ e.pendingLeaveRequests }} pending leave</span>
+                </div>
+              </article>
+              <div *ngIf="overview.employees.length === 0" class="empty">No employees found for this period.</div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab [label]="'Time approvals (' + submittedEntries.length + ')'">
+          <div class="tab-body">
+            <ul class="approval-list">
+              <li *ngFor="let e of submittedEntries" class="approval-row">
+                <span class="avatar" [style.background]="avatarColor(e.userId)">{{ memberInitials(e.userId) }}</span>
+                <div class="a-main">
+                  <div class="a-title"><strong>{{ memberName(e.userId) }}</strong> · {{ e.projectName ?? 'Project' }}</div>
+                  <div class="a-sub">{{ e.entryDate | date: 'mediumDate' }} · {{ minutesToLabel(e.durationMinutes) }} <span *ngIf="e.description">· {{ e.description }}</span></div>
+                  <div class="reject-box" *ngIf="rejectingEntryId === e.id">
+                    <mat-form-field appearance="outline" class="reject-input">
+                      <mat-label>Rejection reason</mat-label>
+                      <input matInput [(ngModel)]="rejectReason" name="rejectReason" aria-label="Rejection reason" />
+                    </mat-form-field>
+                    <button mat-raised-button color="warn" (click)="confirmRejectEntry(e)">Confirm</button>
+                    <button mat-button (click)="rejectingEntryId = null">Cancel</button>
+                  </div>
+                </div>
+                <div class="a-actions">
+                  <button mat-icon-button class="approve" (click)="approveEntry(e)" aria-label="Approve entry"><mat-icon>check_circle</mat-icon></button>
+                  <button mat-icon-button class="reject" (click)="startRejectEntry(e)" aria-label="Reject entry"><mat-icon>cancel</mat-icon></button>
+                </div>
+              </li>
+              <li *ngIf="submittedEntries.length === 0" class="empty">No time entries awaiting approval.</li>
+            </ul>
+          </div>
+        </mat-tab>
+
+        <mat-tab [label]="'Leave approvals (' + pendingLeaves.length + ')'">
+          <div class="tab-body">
+            <ul class="approval-list">
+              <li *ngFor="let l of pendingLeaves" class="approval-row">
+                <span class="avatar" [style.background]="avatarColor(l.userId)">{{ memberInitials(l.userId) }}</span>
+                <div class="a-main">
+                  <div class="a-title">
+                    <strong>{{ memberName(l.userId) }}</strong> · {{ LEAVE_TYPE_LABELS[l.type] }}
+                    <mat-icon class="inline-icon" [style.color]="LEAVE_TYPE_COLORS[l.type]">{{ LEAVE_TYPE_ICONS[l.type] }}</mat-icon>
+                  </div>
+                  <div class="a-sub">{{ l.startDate | date: 'mediumDate' }} – {{ l.endDate | date: 'mediumDate' }} <span *ngIf="l.reason">· {{ l.reason }}</span></div>
+                  <div class="reject-box" *ngIf="rejectingLeaveId === l.id">
+                    <mat-form-field appearance="outline" class="reject-input">
+                      <mat-label>Review note</mat-label>
+                      <input matInput [(ngModel)]="rejectReason" name="leaveNote" aria-label="Review note" />
+                    </mat-form-field>
+                    <button mat-raised-button color="warn" (click)="confirmRejectLeave(l)">Confirm</button>
+                    <button mat-button (click)="rejectingLeaveId = null">Cancel</button>
+                  </div>
+                </div>
+                <div class="a-actions">
+                  <button mat-icon-button class="approve" (click)="approveLeave(l)" aria-label="Approve leave request"><mat-icon>check_circle</mat-icon></button>
+                  <button mat-icon-button class="reject" (click)="startRejectLeave(l)" aria-label="Reject leave request"><mat-icon>cancel</mat-icon></button>
+                </div>
+              </li>
+              <li *ngIf="pendingLeaves.length === 0" class="empty">No leave requests awaiting approval.</li>
+            </ul>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>

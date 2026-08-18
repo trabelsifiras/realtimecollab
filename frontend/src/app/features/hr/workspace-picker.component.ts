@@ -17,22 +17,8 @@ const STORAGE_KEY = 'collab.hr.workspaceId';
   selector: 'app-workspace-picker',
   standalone: true,
   imports: [FormsModule, NgFor, MatFormFieldModule, MatSelectModule],
-  template: `
-    <mat-form-field appearance="outline" class="picker">
-      <mat-label>Workspace</mat-label>
-      <mat-select [ngModel]="workspaceId" (ngModelChange)="select($event)" aria-label="Select workspace">
-        <mat-option *ngFor="let ws of workspaces" [value]="ws.id">{{ ws.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-  `,
-  styles: [
-    `
-      .picker { width: 220px; }
-      @media (max-width: 560px) {
-        .picker { width: 100%; }
-      }
-    `
-  ]
+  templateUrl: './workspace-picker.component.html',
+  styleUrl: './workspace-picker.component.css'
 })
 export class WorkspacePickerComponent implements OnInit {
   @Input() workspaceId: string | null = null;

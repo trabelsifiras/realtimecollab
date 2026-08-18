@@ -1,0 +1,45 @@
+      .leave { max-width: 900px; }
+      .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+      .header h1 { margin: 0; }
+      .subtitle { margin: 4px 0 0; color: var(--text-muted); font-size: 0.9rem; }
+      .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+      .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 18px;
+        margin: 16px 0 24px;
+        box-shadow: var(--shadow-sm);
+      }
+      .form-card h2 { margin: 0 0 12px; font-size: 1rem; }
+      .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .full { grid-column: 1 / -1; }
+      .type-option-icon { font-size: 16px; width: 16px; height: 16px; vertical-align: -3px; margin-right: 8px; }
+      .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+      .section-title { display: flex; align-items: center; gap: 8px; font-size: 1rem; margin: 8px 0 12px; }
+      .count { background: var(--surface-2); border-radius: 10px; padding: 1px 8px; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+
+      .request-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+      .request-card {
+        display: flex; gap: 14px; align-items: flex-start;
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px;
+      }
+      .type-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .request-main { flex: 1; min-width: 0; }
+      .request-title { display: flex; align-items: center; gap: 10px; }
+      .status-pill { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+      .request-dates { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+      .request-dates mat-icon { font-size: 16px; width: 16px; height: 16px; }
+      .days { color: var(--text-faint); font-size: 0.78rem; }
+      .request-reason { font-size: 0.85rem; margin-top: 6px; }
+      .request-note { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+      .request-note mat-icon { font-size: 15px; width: 15px; height: 15px; }
+      .cancel-btn { color: var(--danger); white-space: nowrap; }
+      .no-requests { color: var(--text-faint); padding: 24px; text-align: center; }
+
+      @media (max-width: 700px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .request-card { flex-wrap: wrap; }
+      }

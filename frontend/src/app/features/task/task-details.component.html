@@ -1,0 +1,259 @@
+    <div class="page-container detail">
+      <button mat-button class="back" routerLink="/projects/{{ projectId }}"><mat-icon>arrow_back</mat-icon> Board</button>
+
+      <ng-container *ngIf="task">
+        <div class="task-head">
+          <span class="type-icon" [style.color]="TYPE_COLORS[task.type]" [matTooltip]="TYPE_LABELS[task.type]">{{ TYPE_ICONS[task.type] }}</span>
+          <span class="key">{{ task.key }}</span>
+          <h1>{{ task.title }}</h1>
+          <span class="priority" [style.background]="PRIORITY_COLORS[task.priority] + '22'" [style.color]="PRIORITY_COLORS[task.priority]">{{ PRIORITY_LABELS[task.priority] }}</span>
+        </div>
+
+        <div class="layout">
+          <div class="main-col">
+            <section class="panel" aria-labelledby="description-title">
+              <h2 id="description-title" class="panel-title">Description</h2>
+              <ng-container *ngIf="!editingDescription; else editDesc">
+                <p class="desc">{{ task.description ?? 'No description provided.' }}</p>
+                <button mat-button class="edit-btn" (click)="startEditDescription()"><mat-icon>edit</mat-icon> Edit</button>
+              </ng-container>
+              <ng-template #editDesc>
+                <mat-form-field appearance="outline" class="full-width">
+                  <textarea matInput [(ngModel)]="descriptionDraft" name="description" rows="5" aria-label="Description"></textarea>
+                </mat-form-field>
+                <div class="edit-actions">
+                  <button mat-button (click)="cancelEditDescription()">Cancel</button>
+                  <button mat-raised-button color="primary" (click)="saveDescription()">Save</button>
+                </div>
+              </ng-template>
+            </section>
+
+            <section class="panel" *ngIf="task.type !== 'SUBTASK'" aria-labelledby="subtasks-title">
+              <h2 id="subtasks-title" class="panel-title">Subtasks <span class="count">{{ subtasks.length }}</span></h2>
+              <div *ngFor="let sub of subtasks" class="subtask">
+                <mat-icon [style.color]="STATUS_COLORS[sub.status]" class="sub-status">{{ sub.status === 'DONE' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <a [routerLink]="['/projects', projectId, 'tasks', sub.id]">{{ sub.key }} · {{ sub.title }}</a>
+                <span class="sub-meta">{{ TYPE_LABELS[sub.type] }}</span>
+              </div>
+              <div *ngIf="subtasks.length === 0" class="muted">No subtasks yet.</div>
+              <form class="inline-form" (ngSubmit)="addSubtask()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <input matInput [(ngModel)]="newSubtaskTitle" name="newSubtaskTitle" placeholder="Add a subtask…" aria-label="New subtask title" />
+                </mat-form-field>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!newSubtaskTitle.trim()">Add</button>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="activity-title">
+              <h2 id="activity-title" class="panel-title">Activity</h2>
+              <ol class="activity" *ngIf="activities.length; else noActivity">
+                <li *ngFor="let a of activities" class="activity-item">
+                  <span class="avatar" [style.background]="avatarColor(a.actorId)">{{ actorInitials(a.actorId) }}</span>
+                  <div class="activity-body">
+                    <div class="activity-text">{{ activityText(a) }}</div>
+                    <div class="activity-time">{{ actorName(a.actorId) }} · {{ a.createdAt | date: 'MMM d, y, h:mm a' }}</div>
+                  </div>
+                </li>
+              </ol>
+              <ng-template #noActivity><div class="muted">No activity recorded.</div></ng-template>
+            </section>
+
+            <section class="panel" aria-labelledby="comments-title">
+              <h2 id="comments-title" class="panel-title">Comments <span class="count">{{ comments.length }}</span></h2>
+              <div class="comment-box">
+                <textarea [(ngModel)]="newComment" name="comment" rows="2" placeholder="Add a comment…" aria-label="Add a comment" (keydown.control.enter)="addComment()"></textarea>
+                <div class="comment-actions">
+                  <span class="hint">Ctrl+Enter to send</span>
+                  <button mat-raised-button color="primary" (click)="addComment()" [disabled]="!newComment.trim()">Comment</button>
+                </div>
+              </div>
+              <div *ngFor="let c of comments" class="comment">
+                <span class="avatar" [style.background]="avatarColor(c.authorId)">{{ actorInitials(c.authorId) }}</span>
+                <div class="comment-body">
+                  <div class="comment-content">{{ c.content }}</div>
+                  <div class="comment-time">{{ actorName(c.authorId) }} · {{ c.createdAt | date: 'short' }}</div>
+                </div>
+              </div>
+              <div *ngIf="comments.length === 0" class="muted">No comments yet.</div>
+            </section>
+          </div>
+
+          <aside class="side-col" aria-label="Task details">
+            <section class="panel">
+              <h2 class="panel-title">Status</h2>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-select [ngModel]="task.status" (ngModelChange)="updateStatus($event)" aria-label="Status">
+                  <mat-option *ngFor="let s of TASK_STATUSES" [value]="s">
+                    <span class="status-option"><span class="status-dot" [style.background]="STATUS_COLORS[s]"></span>{{ STATUS_LABELS[s] }}</span>
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">People</h2>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Assignee</mat-label>
+                <mat-select [ngModel]="task.assigneeId ?? ''" (ngModelChange)="updateAssignee($event === '' ? null : $event)" aria-label="Assignee">
+                  <mat-option [value]="">Unassigned</mat-option>
+                  <mat-option *ngFor="let m of members" [value]="m.userId">{{ memberName(m) }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <div class="field-row">
+                <mat-icon>person_outline</mat-icon>
+                <span class="field-label">Reporter</span>
+                <span class="field-value">{{ actorName(task.creatorId) }}</span>
+              </div>
+              <div class="field-row watchers-row">
+                <mat-icon>visibility</mat-icon>
+                <span class="field-label">Watchers</span>
+                <span class="field-value">{{ task.watchers.length }}</span>
+                <button mat-button class="watch-btn" (click)="toggleWatch()">{{ isWatching() ? 'Stop watching' : 'Watch' }}</button>
+              </div>
+              <div class="watcher-avatars" *ngIf="task.watchers.length">
+                <span *ngFor="let w of task.watchers" class="avatar sm" [style.background]="avatarColor(w)" [matTooltip]="actorName(w)">{{ actorInitials(w) }}</span>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Details</h2>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Type</mat-label>
+                <mat-select [ngModel]="task.type" (ngModelChange)="updateType($event)" aria-label="Type">
+                  <mat-option *ngFor="let t of TASK_TYPES" [value]="t">
+                    <mat-icon class="type-option-icon" [style.color]="TYPE_COLORS[t]">{{ TYPE_ICONS[t] }}</mat-icon>{{ TYPE_LABELS[t] }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Priority</mat-label>
+                <mat-select [ngModel]="task.priority" (ngModelChange)="updatePriority($event)" aria-label="Priority">
+                  <mat-option *ngFor="let p of TASK_PRIORITIES" [value]="p">{{ PRIORITY_LABELS[p] }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Story points</mat-label>
+                <input matInput type="number" min="0" [ngModel]="task.storyPoints ?? ''" (change)="updateStoryPoints($event)" aria-label="Story points" />
+              </mat-form-field>
+            </section>
+
+            <section class="panel" *ngIf="epics.length || task.epicId">
+              <h2 class="panel-title">Epic link</h2>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-select [ngModel]="task.epicId ?? ''" (ngModelChange)="updateEpic($event === '' ? null : $event)" aria-label="Epic link">
+                  <mat-option [value]="">No epic</mat-option>
+                  <mat-option *ngFor="let e of epics" [value]="e.id">{{ e.key }} · {{ e.title }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Schedule</h2>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Start date</mat-label>
+                <input matInput type="date" [(ngModel)]="startDateInput" name="startDate" (change)="saveSchedule()" aria-label="Start date" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Due date</mat-label>
+                <input matInput type="date" [(ngModel)]="dueDateInput" name="dueDate" (change)="saveSchedule()" aria-label="Due date" />
+              </mat-form-field>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Time tracking</h2>
+              <div class="field-row">
+                <span class="field-label">Original estimate</span>
+                <input class="minutes-input" type="number" min="0" [ngModel]="task.originalEstimateMinutes ?? ''" (change)="updateEstimate('original', $event)" aria-label="Original estimate in minutes" />
+                <span class="muted">{{ formatMinutes(task.originalEstimateMinutes) }}</span>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Remaining</span>
+                <input class="minutes-input" type="number" min="0" [ngModel]="task.remainingEstimateMinutes ?? ''" (change)="updateEstimate('remaining', $event)" aria-label="Remaining estimate in minutes" />
+                <span class="muted">{{ formatMinutes(task.remainingEstimateMinutes) }}</span>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Logged</span>
+                <span class="field-value">{{ formatMinutes(task.loggedMinutes) }}</span>
+              </div>
+              <div class="log-time">
+                <mat-form-field appearance="outline" class="log-input">
+                  <mat-label>Log time (minutes)</mat-label>
+                  <input matInput type="number" min="1" [(ngModel)]="logMinutes" name="logMinutes" aria-label="Minutes to log" />
+                </mat-form-field>
+                <button mat-raised-button color="primary" (click)="logTime()" [disabled]="!logMinutes">Log</button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Labels</h2>
+              <div class="labels">
+                <span *ngFor="let label of task.labels" class="label">
+                  {{ label }}
+                  <button mat-icon-button class="label-remove" (click)="removeLabel(label)" [attr.aria-label]="'Remove label ' + label"><mat-icon>close</mat-icon></button>
+                </span>
+                <span *ngIf="!task.labels?.length" class="muted">No labels.</span>
+              </div>
+              <form class="inline-form" (ngSubmit)="addLabel()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <input matInput [(ngModel)]="newLabel" name="newLabel" placeholder="Add a label…" aria-label="New label" />
+                </mat-form-field>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!newLabel.trim()">Add</button>
+              </form>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Attachments</h2>
+              <div *ngFor="let att of attachments" class="attachment">
+                <mat-icon>attach_file</mat-icon>
+                <div class="att-info">
+                  <button class="att-name" (click)="downloadAttachment(att)">{{ att.fileName }}</button>
+                  <div class="att-meta">{{ actorName(att.uploaderId) }} · {{ formatBytes(att.sizeBytes) }}</div>
+                </div>
+                <button mat-icon-button class="att-delete" (click)="deleteAttachment(att)" aria-label="Delete attachment"><mat-icon>delete_outline</mat-icon></button>
+              </div>
+              <div *ngIf="attachments.length === 0" class="muted">No attachments.</div>
+              <div class="upload-row">
+                <input #fileInput type="file" hidden (change)="onFileSelected($event)" aria-label="Choose file" />
+                <button mat-stroked-button color="primary" (click)="fileInput.click()"><mat-icon>upload</mat-icon> Upload</button>
+                <span *ngIf="uploading" class="muted">Uploading…</span>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Linked issues</h2>
+              <div *ngFor="let link of links" class="link">
+                <mat-icon>link</mat-icon>
+                <span class="link-type">{{ LINK_TYPE_LABELS[link.linkType] }}</span>
+                <a *ngIf="link.targetKey" [routerLink]="['/projects', projectId, 'tasks', link.targetTaskId]">{{ link.targetKey }}</a>
+                <button mat-icon-button class="att-delete" (click)="removeLink(link)" aria-label="Remove link"><mat-icon>close</mat-icon></button>
+              </div>
+              <div *ngIf="links.length === 0" class="muted">No linked issues.</div>
+              <form class="inline-form" (ngSubmit)="addLink()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Link to issue</mat-label>
+                  <input matInput [matAutocomplete]="linkAuto" [(ngModel)]="linkQuery" name="linkQuery" placeholder="Search by key or title…" aria-label="Link to issue" />
+                  <mat-autocomplete #linkAuto="matAutocomplete" (optionSelected)="onLinkSelected($event)">
+                    <mat-option *ngFor="let t of linkOptions" [value]="t">{{ t.key }} · {{ t.title }}</mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="link-type">
+                  <mat-select [(ngModel)]="newLinkType" name="newLinkType" aria-label="Link type">
+                    <mat-option *ngFor="let lt of TASK_LINK_TYPES" [value]="lt">{{ LINK_TYPE_LABELS[lt] }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!selectedLinkTarget">Link</button>
+              </form>
+            </section>
+
+            <section class="panel">
+              <h2 class="panel-title">Meta</h2>
+              <div class="field-row"><mat-icon>schedule</mat-icon><span class="field-label">Created</span><span class="field-value">{{ task.createdAt | date: 'medium' }}</span></div>
+              <div class="field-row"><mat-icon>update</mat-icon><span class="field-label">Updated</span><span class="field-value">{{ task.updatedAt | date: 'medium' }}</span></div>
+              <div class="field-row"><mat-icon>tag</mat-icon><span class="field-label">Version</span><span class="field-value">{{ task.version }}</span></div>
+            </section>
+          </aside>
+        </div>
+
+        <div *ngIf="conflict" class="conflict-banner" role="alert">This task was modified by another user. Reloading…</div>
+      </ng-container>
+    </div>

@@ -1,0 +1,101 @@
+      .back {
+        color: var(--text-muted);
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .header h1 {
+        margin: 0;
+      }
+      .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        margin-bottom: 24px;
+        max-width: 560px;
+        box-shadow: var(--shadow-xs);
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+      .grow {
+        flex: 1;
+      }
+      .key {
+        width: 120px;
+      }
+      .project-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .p-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .p-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        color: #fff;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+      }
+      .status-pill {
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.03em;
+      }
+      .p-name {
+        font-weight: 700;
+        font-size: 1.05rem;
+      }
+      .p-key {
+        font-size: 0.72rem;
+        color: var(--text-faint);
+        font-weight: 600;
+      }
+      .p-desc {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        min-height: 40px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .open-board {
+        align-self: flex-start;
+        color: var(--primary);
+        font-weight: 600;
+        padding-left: 0;
+      }
+      .empty-card {
+        text-align: center;
+        background: var(--surface);
+        border: 1px dashed var(--border-strong);
+        border-radius: var(--radius-lg);
+        padding: 64px;
+        color: var(--text-muted);
+      }
+      .empty-card mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: var(--text-faint);
+      }

@@ -1,0 +1,53 @@
+    <div class="page-container">
+      <div class="welcome">
+        <div>
+          <h1>Good {{ greeting() }}, {{ firstName() }} 👋</h1>
+          <p class="text-muted">Here's what's happening across your workspaces.</p>
+        </div>
+        <button mat-raised-button color="primary" routerLink="/workspaces">
+          <mat-icon>add</mat-icon> New workspace
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon purple"><mat-icon>workspaces</mat-icon></div>
+          <div>
+            <div class="stat-value">{{ workspaces.length }}</div>
+            <div class="stat-label">Workspaces</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><mat-icon>notifications</mat-icon></div>
+          <div>
+            <div class="stat-value">{{ notification.unreadCount() }}</div>
+            <div class="stat-label">Unread alerts</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><mat-icon>bolt</mat-icon></div>
+          <div>
+            <div class="stat-value">Live</div>
+            <div class="stat-label">Realtime sync</div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Your workspaces</h2>
+      <div class="card-grid">
+        <div *ngFor="let ws of workspaces" class="workspace-card clickable-card" (click)="open(ws.id)">
+          <span class="workspace-badge" [style.background]="avatarColor(ws.name)">{{ initials(ws.name) }}</span>
+          <div class="ws-body">
+            <div class="ws-name">{{ ws.name }}</div>
+            <div class="ws-desc">{{ ws.description ?? 'No description' }}</div>
+          </div>
+          <mat-icon class="ws-arrow">chevron_right</mat-icon>
+        </div>
+      </div>
+
+      <div *ngIf="workspaces.length === 0" class="empty-card">
+        <mat-icon>rocket_launch</mat-icon>
+        <p>You're not part of a workspace yet.</p>
+        <button mat-raised-button color="primary" routerLink="/workspaces">Create your first workspace</button>
+      </div>
+    </div>
